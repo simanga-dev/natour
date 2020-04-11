@@ -1,28 +1,34 @@
-const fs = require('fs')
 const express = require('express')
+const morgan = require('morgan')
 
+const tourRouter = require('./routes/tourRoute')
+const userRouter = require('./routes/userRoute')
 
 const app = express();
 
-const tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`))
+// 1) MIDDLEWARE
+//This is how we use middle ware
+app.use(morgan('dev'))
+app.use(express.json())
 
-app.get('/api/v1/tours', (ref, res) => {
-  res.status(200).json({
-    status: 'sucess',
-    results: tours.length,
-    data: {
-      tours
-    }
-  })
+app.use((req, res, next) => {
+
+  console.log("Hello from middlware")
+  next()
+
 })
-// console.log(tours)
-// app.post('/', (ref, res) => {
-//   res.status(200).send(`you can post to this methot`)
-// })
 
+app.use((req, res, next) => {
 
-
-const port = 3000;
-app.listen(port, () => {
-  console.log(`App running5 on port ${port}`)
+  req.requestTime = new Date().toISOString()
+  next()
 })
+
+
+app.use('/api/v1/tours', tourRouter)
+app.use('/api/v1/users', userRouter)
+
+
+module.exports = app
+
+
