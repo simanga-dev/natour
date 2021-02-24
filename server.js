@@ -11,10 +11,7 @@ mongoose.connect(DB, {
   userNewUrParser: true,
   useCreteIndex: true,
   useFindAndModify: false
-}).then(con => {
-    console.log(!con.connection);
-    console.log('DB connection successful!');
-})
+}).then(() => console.log('DB connection successful!'))
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
