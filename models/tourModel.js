@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-
 const tour_schema = new mongoose.Schema({
   name: {
     type: String,
@@ -13,10 +12,10 @@ const tour_schema = new mongoose.Schema({
   },
   price: {
     type: Number,
-    requirec: [true, 'A tour must have a price'],
+    required: [true, 'A tour must have a price'],
   },
 });
 
 const Tour = mongoose.model('Tour', tour_schema);
 
-module.exports = Tour
+module.exports = Tour;
