@@ -1,4 +1,5 @@
 const Tour = require('./../models/tourModel');
+const APIFeatures = require('../utils/api_features');
 
 // exports.checkID = (req, res, next, val) => {
 //   console.log(`just to see if ${val}`);
@@ -12,24 +13,23 @@ const Tour = require('./../models/tourModel');
 //   next();
 // };
 
+exports.best_5 = (req, res, next, val) => {
+  req.query.limit = '5';
+  req.query.sort = '-rating_average, price';
+  req.query.fields = 'name,price,rating_average,summary,difficulty';
+  next();
+};
+
 // Return all tours
 exports.getAllTours = async (req, res) => {
   try {
-    const queryObj = { ...req.query };
-    const excludeFields = ['page', 'sort', 'limit', 'fields'];
-    excludeFields.forEach((el) => delete queryObj[el]);
+    const api_features = new APIFeatures(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .pagination();
 
-    // console.log(queryObj, excludeFields);
-
-    const query = Tour.find(queryObj);
-        
-            // console.log(req.query.sort)
-        if(req.query.sort) {
-            console.log(req.query)
-            query = query.sort(req.query.sort)
-        }
-
-    const tours = await query;
+    const tours = await api_features.query;
 
     res.status(200).json({
       status: 'sucess',
@@ -38,7 +38,6 @@ exports.getAllTours = async (req, res) => {
         tours,
       },
     });
-
   } catch (e) {
     res.status(404).json({
       status: 'fail again',
