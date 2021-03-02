@@ -1,85 +1,118 @@
 const mongoose = require('mongoose');
+const slugify = require('slugify');
+const validator = require('slugify');
 
-// const sample = [{
-//     id: 8,
-//     name: 'The Northern Lights',
-//     duration: 3,
-//     max_group_size: 12,
-//     difficulty: 'easy',
-//     rating_average: 4.9,
-//     rating_quantity: 33,
-//     price: 1497,
-//     summary: 'Enjoy the Northern Lights in one of the best places in the world',
-//     description:
-//       'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua, ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum!\nDolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur, exercitation ullamco laboris nisi ut aliquip. Lorem ipsum dolor sit amet, consectetur adipisicing elit!',
-//     image_cover: 'tour-9-cover.jpg',
-//     images: ['tour-9-1.jpg', 'tour-9-2.jpg', 'tour-9-3.jpg'],
-//     start_dates: ['2021-12-16,10:00', '2022-01-16,10:00', '2022-12-12,10:00'],
-//   },
-// ];
+const tour_schema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, 'A tour must ave a name'],
+      // validator: validator.isApha,
+      // unique: true,
+    },
 
-const tour_schema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, 'A tour must ave a name'],
-    // unique: true,
+    rating: {
+      type: Number,
+      default: 4.5,
+    },
+
+    rating_average: {
+      type: Number,
+      required: true,
+    },
+
+    duration: {
+      type: Number,
+      required: true,
+    },
+
+    max_group_size: Number,
+
+    difficulty: {
+      type: String,
+      required: true,
+      enum: {
+        values: ['easy', 'medium', 'difficult'],
+        message: 'Difficulty can either be easy. medium or difficulty',
+      },
+    },
+    slug: String,
+
+    rating_quantity: {
+      required: true,
+      type: Number,
+    },
+
+    summary: {
+      trim: true,
+      type: String,
+    },
+
+    description: {
+      type: String,
+      trim: true,
+    },
+
+    image_cover: {
+      type: String,
+      required: [true, 'A tour must have a cover images'],
+    },
+
+    start_dates: [Date],
+
+    created_at: {
+      type: Date,
+      default: Date.now(),
+    },
+
+    images: [String],
+
+    price: {
+      type: Number,
+      required: [true, 'A tour must have a price'],
+    },
+    price_discount: {
+      type: Number,
+      validate: {
+        validator: function (val) {
+          return val < this.price;
+        },
+        message: 'Discount can not be greater than price',
+      },
+    },
   },
+  {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
+);
 
-  rating: {
-    type: Number,
-    default: 4.5,
-  },
+tour_schema.virtual('duration_weeks').get(function () {
+  return this.duration / 7;
+});
 
-  rating_average: {
-    type: Number,
-    required: true,
-  },
+tour_schema.pre('save', function (next) {
+  this.slug = slugify(this.name, { lower: true });
+  next();
+});
 
-  duration: {
-    type: Number,
-    required: true,
-  },
+tour_schema.pre(/^find/, function (docs, next) {
+  this.find({ secret_tour: { $ne: true } });
 
-  max_group_size: Number,
+  this.start = Date.now();
+  next();
+});
 
-  difficulty: {
-    type: String,
-    required: true,
-  },
+tour_schema.post(/^find/, function (docs, next) {
+  // console.log(`Query took ${Date.now() - this.start} milliseconds!`)
+  // console.log(docs);
+  next();
+});
 
-  rating_quantity: {
-    required: true,
-    type: Number,
-  },
+tour_schema.pre('aggregate', function () {
+  this.pipeline().unshift({ $match: { secret_tour: { $ne: true } } });
 
-  summary: {
-    trim: true,
-    type: String,
-  },
-
-  description: {
-    type: String,
-    trim: true,
-  },
-
-  image_cover: {
-    type: String,
-    required: [true, 'A tour must have a cover images'],
-  },
-
-  start_dates: [Date],
-
-  created_at: {
-    type: Date,
-    default: Date.now(),
-  },
-
-  images: [String],
-
-  price: {
-    type: Number,
-    required: [true, 'A tour must have a price'],
-  },
+  next();
 });
 
 const Tour = mongoose.model('Tour', tour_schema);
