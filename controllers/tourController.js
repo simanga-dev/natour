@@ -21,8 +21,9 @@ exports.best_5 = (req, res, next, val) => {
 };
 
 // Return all tours
-exports.getAllTours = async (req, res) => {
+exports.get_all_tours = async (req, res) => {
   try {
+
     const api_features = new APIFeatures(Tour.find(), req.query)
       .filter()
       .sort()
@@ -30,6 +31,7 @@ exports.getAllTours = async (req, res) => {
       .pagination();
 
     const tours = await api_features.query;
+
 
     res.status(200).json({
       status: 'sucess',
@@ -40,7 +42,7 @@ exports.getAllTours = async (req, res) => {
     });
   } catch (e) {
     res.status(404).json({
-      status: 'fail again',
+      status: 'whats wrong',
       message: e,
     });
   }
@@ -211,3 +213,4 @@ exports.get_monthly_plan = async (req, res) => {
     });
   }
 };
+
