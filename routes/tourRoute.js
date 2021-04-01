@@ -17,7 +17,7 @@ router.route('/montly-plan/:year').get(tourController.get_monthly_plan);
 
 router
   .route('/:id')
-  .get(tourController.getTour)
+  .get(tourController.get_tour)
   .patch(tourController.updateTour)
   .delete(tourController.deleteTour);
 
