@@ -1,7 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const AppErro = require('./utils/app_erro');
-const bp = require('body-parser')
+const bp = require('body-parser');
 
 const tourRouter = require('./routes/tourRoute');
 const userRouter = require('./routes/userRoute');
@@ -12,14 +12,14 @@ const app = express();
 // 1) MIDDLEWARE
 //This is how we use middle ware
 // if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
+app.use(morgan('dev'));
 // }
 
 // app.use(express.json());
 // app.use(express.static(`${__dirname}/public`));
 
-app.use(bp.json())
-app.use(bp.urlencoded({ extended: true }))
+app.use(bp.json());
+app.use(bp.urlencoded({ extended: true }));
 
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
