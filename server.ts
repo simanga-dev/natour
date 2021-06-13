@@ -1,5 +1,6 @@
-const mongoose = require('mongoose');
-const dotenv = require('dotenv');
+import mongoose  from 'mongoose';
+import dotenv from 'dotenv';
+import './app';
 
 
 process.on('uncaughtException', (err) => {
@@ -7,7 +8,6 @@ process.on('uncaughtException', (err) => {
     process.exit(1);
 });
 
-const app = require('./app');
 
 dotenv.config({ path: './config.env' });
 
@@ -16,10 +16,10 @@ dotenv.config({ path: './config.env' });
 const DB = process.env.DATABASE_LOCAL;
 
 mongoose
-  .connect(DB, {
-    userNewUrParser: true,
-    useCreteIndex: true,
-    useFindAndModify: false,
+  .connect(`${DB}`, {
+    // userNewUrParser: true,
+    // useCreteIndex: true,
+    // useFindAndModify: false,
   })
   .then(() => console.log('DB connection successful!'));
 
@@ -29,7 +29,7 @@ const server = app.listen(port, () => {
 });
 
 process.on('unhandledRejection', (err) => {
-  console.log(err.name, err.message);
+  console.log(err);
   server.close(() => {
     process.exit(1);
   });
